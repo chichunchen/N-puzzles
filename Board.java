@@ -1,12 +1,11 @@
 import edu.princeton.cs.algs4.In;
+import edu.princeton.cs.algs4.Stack;
 import edu.princeton.cs.algs4.StdOut;
-
-import java.util.LinkedList;
 
 /**
  * Created by chichunchen on 9/4/17.
  */
-public class Board implements Comparable<Board> {
+public class Board {
 
     private int[][] blocks;
     private int dimension;
@@ -88,42 +87,10 @@ public class Board implements Comparable<Board> {
             }
         }
 
-        // compute manhattan
-
-
         // debugging
 //        StdOut.println("hamming: " + hamming());
 //        StdOut.println("manhattan: " + manhattan());
 //        StdOut.println(this);
-    }
-
-    public int compareTo(Board other) {
-//        if (this.hamming < other.hamming()) {       //return <0 if than other
-//            return -1;
-//        }
-//        else if (this.hamming > other.hamming()) {
-//            return 1;
-//        }
-//        else {      // hamming is equal, use manhattan
-//            if (this.manhattan < other.manhattan()) {       //return <0 if than other
-//                return -1;
-//            }
-//            else if (this.manhattan > other.manhattan()) {
-//                return 1;
-//            }
-//            else {
-//                return 0;
-//            }
-//        }
-        if (this.manhattan < other.manhattan()) {       //return <0 if than other
-            return -1;
-        }
-        else if (this.manhattan > other.manhattan()) {
-            return 1;
-        }
-        else {
-            return 0;
-        }
     }
 
     // (where blocks[i][j] = block in row i, column j)
@@ -206,7 +173,7 @@ public class Board implements Comparable<Board> {
 
     public Iterable<Board> neighbors()     // all neighboring boards
     {
-        LinkedList<Board> link = new LinkedList<>();
+        Stack<Board> stack = new Stack<>();
         int blank_x = (this.blank % this.dimension == 0 ? this.dimension : this.blank % this.dimension)-1;
         int blank_y = (int) Math.ceil((double) this.blank / this.dimension)-1;
 
@@ -221,7 +188,7 @@ public class Board implements Comparable<Board> {
             tiles[blank_y][blank_x] = tiles[blank_y][blank_x+1];
             tiles[blank_y][blank_x+1] = temp;
 
-            link.add(new Board(tiles));
+            stack.push(new Board(tiles));
         }
 
         // add Board that swap with left
@@ -233,7 +200,7 @@ public class Board implements Comparable<Board> {
             tiles[blank_y][blank_x] = tiles[blank_y][blank_x-1];
             tiles[blank_y][blank_x-1] = temp;
 
-            link.add(new Board(tiles));
+            stack.push(new Board(tiles));
         }
 
         // add Board that swap with below
@@ -245,7 +212,7 @@ public class Board implements Comparable<Board> {
             tiles[blank_y][blank_x] = tiles[blank_y+1][blank_x];
             tiles[blank_y+1][blank_x] = temp;
 
-            link.add(new Board(tiles));
+            stack.push(new Board(tiles));
         }
 
         // add Board that swap with up
@@ -257,18 +224,33 @@ public class Board implements Comparable<Board> {
             tiles[blank_y][blank_x] = tiles[blank_y-1][blank_x];
             tiles[blank_y-1][blank_x] = temp;
 
-            link.add(new Board(tiles));
+            stack.push(new Board(tiles));
         }
 
-        return link;
+        return stack;
     }
+
+//    public String toString() {
+//        StringBuilder s = new StringBuilder();
+//        s.append("Dimension: " + dimension + "\n");
+//        s.append("Manhattan: " + manhattan() + "\n");
+//        for (int i = 0; i < dimension; i++) {
+//            for (int j = 0; j < dimension; j++) {
+//                s.append(String.format("%2d ", blocks[i][j]));
+//            }
+//            s.append("\n");
+//        }
+//        return s.toString();
+//    }
 
     public String toString()               // string representation of this board (in the output format specified below)
     {
         StringBuilder sb = new StringBuilder(this.dimension + "\n");
+        sb.append("Manhattan: " + manhattan() + "\n");
+        sb.append("Hamming: " + hamming() + "\n");
         for (int[] arr : this.blocks) {
             for (int i: arr) {
-                sb.append(" " + i);
+                sb.append(String.format("%2d ", i));
             }
             sb.append("\n");
         }
@@ -296,20 +278,22 @@ public class Board implements Comparable<Board> {
     }
 
     static private void test_neighbor(int[][] tiles) {
+        StdOut.println("test_neighbor");
         Board b1 = new Board(tiles);
         StdOut.println("b1: \n" + b1 + "\n");
+
         for (Board b: b1.neighbors()) {
             StdOut.println(b);
         }
     }
 
     static private void test_twin(int[][] tiles) {
+        StdOut.println("test_twin");
         Board b1 = new Board(tiles);
         Board b2 = b1.twin();
         StdOut.println(b1);
         StdOut.println(b2);
 
-        if (b1.equals(b2))
-            StdOut.println("b1 and b2 is not equal!!!");
+        assert !b1.equals(b2);
     }
 }
