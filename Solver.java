@@ -66,25 +66,6 @@ public class Solver {
         }
     }
 
-    private class SortByHamming implements Comparator<SearchNode>
-    {
-        @Override
-        public int compare(SearchNode o1, SearchNode o2) {
-            int thisTotal = o1.hammingPriority();
-            int otherTotal = o2.hammingPriority();
-
-            if (thisTotal < otherTotal) {                               // return <0 if than other
-                return -1;
-            }
-            else if (thisTotal > otherTotal) {
-                return 1;
-            }
-            else {
-                return 0;
-            }
-        }
-    }
-
     private class SortByManhattan implements Comparator<SearchNode>
     {
         @Override
@@ -96,7 +77,15 @@ public class Solver {
                 return 1;
             }
             else {
-                return 0;
+                if (o1.currBoard.manhattan() < o2.currBoard.manhattan()) {
+                    return -1;
+                }
+                else if (o1.currBoard.manhattan() > o2.currBoard.manhattan()) {
+                    return 1;
+                }
+                else {
+                    return 0;
+                }
             }
         }
     }

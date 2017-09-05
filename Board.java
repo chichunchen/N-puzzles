@@ -20,14 +20,7 @@ public class Board {
         }
 
         this.dimension = blocks.length;
-        // defense copy of blocks
-        int[][] blockCopy = new int[this.dimension][this.dimension];
-        for (int i = 0; i < this.dimension;  i++) {
-            for (int j = 0; j < this.dimension; j++) {
-                blockCopy[i][j] = blocks[i][j];
-            }
-        }
-        this.blocks = blockCopy;
+        this.blocks = copyBlocks(blocks);
 
         // local variables for computing blank, hamming, and manhattan
         int ham = 0, man = 0;
@@ -123,14 +116,7 @@ public class Board {
 
     public Board twin()                    // a board that is obtained by exchanging any pair of blocks
     {
-        int[][] tBlocks = new int[this.dimension][this.dimension];
-
-        // copy all block elements
-        for (int i = 0; i < this.dimension; i++) {
-            for (int j = 0; j < this.dimension; j++) {
-                tBlocks[i][j] = this.blocks[i][j];
-            }
-        }
+        int[][] tBlocks = copyBlocks(this.blocks);
 
         // swap elements that is neighbor also both not 0
         for (int j = 0; j < this.dimension; j++) {
@@ -196,10 +182,13 @@ public class Board {
     public Iterable<Board> neighbors()     // all neighboring boards
     {
         Stack<Board> stack = new Stack<>();
-        int blankX = (this.blank % this.dimension == 0 ? this.dimension : this.blank % this.dimension)-1;
-        int blankY = (int) Math.ceil((double) this.blank / this.dimension)-1;
-
-        // StdOut.println("blank_x: " + blank_x + " blank_y: " + blank_y);
+        int blankX, blankY, blankMod = this.blank % this.dimension;
+        if (blankMod == 0) {
+            blankX = this.dimension - 1;
+        } else {
+            blankX = blankMod - 1;
+        }
+        blankY = (int) Math.ceil((double) this.blank / this.dimension)-1;
 
         // add Board that swap with right
         if ((blankX+1) < this.dimension) {
