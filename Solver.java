@@ -1,17 +1,27 @@
-import edu.princeton.cs.algs4.*;
+import edu.princeton.cs.algs4.In;
+import edu.princeton.cs.algs4.MinPQ;
+import edu.princeton.cs.algs4.Stack;
+import edu.princeton.cs.algs4.StdOut;
 
 import java.util.Comparator;
 /**
  * Created by chichunchen on 9/4/17.
  */
 public class Solver {
-    final private SearchNode goalSearchNode;
-    final private boolean solvable;
+    private final Board initialBoard;
+    private final SearchNode goalSearchNode;
+    private final boolean solvable;
 
     public Solver(Board initial)            // find a solution to the initial board (using the A* algorithm)
     {
-        MinPQ<SearchNode> origPQ = new MinPQ<>(new sortByManhattan());
-        MinPQ<SearchNode> twinPQ = new MinPQ<>(new sortByManhattan());
+        if (initial == null) {
+            throw new IllegalArgumentException();
+        }
+
+        this.initialBoard = initial;
+
+        MinPQ<SearchNode> origPQ = new MinPQ<>(new SortByManhattan());
+        MinPQ<SearchNode> twinPQ = new MinPQ<>(new SortByManhattan());
 
         origPQ.insert(new SearchNode(initial, null, 0));
         twinPQ.insert(new SearchNode(initial.twin(), null, 0));
@@ -23,13 +33,12 @@ public class Solver {
         // and then find the min searchNode from minPQ, repeat if current board is not in goal state
         // also, process a twin node, and try whether it can reach goal state
         // if twin reach goal state, then it's unsolvable!
-        while(!minSearchNode.currBoard.isGoal() && !twinSearchNode.currBoard.isGoal()) {
-
+        while (!minSearchNode.currBoard.isGoal() && !twinSearchNode.currBoard.isGoal()) {
             // our target
             for (Board b : minSearchNode.currBoard.neighbors()) {
                 // critical optimization: neighbor should not equal to neighbor
                 if (minSearchNode.prevSearchNode == null || (!minSearchNode.prevSearchNode.currBoard.equals(b))) {
-                    SearchNode searchNode = new SearchNode(b, minSearchNode, minSearchNode.moves + 1);
+                    SearchNode searchNode = new SearchNode(b, minSearchNode, minSearchNode.moves+1);
                     origPQ.insert(searchNode);
                 }
             }
@@ -39,37 +48,35 @@ public class Solver {
             for (Board b : twinSearchNode.currBoard.neighbors()) {
                 // critical optimization: neighbor should not equal to neighbor
                 if (twinSearchNode.prevSearchNode == null || (!twinSearchNode.prevSearchNode.currBoard.equals(b))) {
-                    SearchNode searchNode = new SearchNode(b, twinSearchNode, twinSearchNode.moves + 1);
+                    SearchNode searchNode = new SearchNode(b, twinSearchNode, twinSearchNode.moves+1);
                     twinPQ.insert(searchNode);
                 }
             }
             twinSearchNode = twinPQ.delMin();
         }
-        goalSearchNode = minSearchNode;
 
+        // store goal node for reconstruct the all path by solution()
+        this.goalSearchNode = minSearchNode;
+
+        // set solve state
         if (twinSearchNode.currBoard.isGoal()) {
             this.solvable = false;
-            return;
         } else {
             this.solvable = true;
         }
-
-
-//        StdOut.println(minSearchNode.currBoard);
     }
 
-    private class sortByHamming implements Comparator<SearchNode>
+    private class SortByHamming implements Comparator<SearchNode>
     {
         @Override
         public int compare(SearchNode o1, SearchNode o2) {
-            int this_total = o1.hammingPriority();
-            int other_total = o2.hammingPriority();
+            int thisTotal = o1.hammingPriority();
+            int otherTotal = o2.hammingPriority();
 
-            if (this_total < other_total) {       //return <0 if than other
-//                StdOut.println("moves so far: " + o1.moves + " hamming: " + o1.currBoard.manhattan());
+            if (thisTotal < otherTotal) {                               // return <0 if than other
                 return -1;
             }
-            else if (this_total > other_total) {
+            else if (thisTotal > otherTotal) {
                 return 1;
             }
             else {
@@ -78,12 +85,11 @@ public class Solver {
         }
     }
 
-    private class sortByManhattan implements Comparator<SearchNode>
+    private class SortByManhattan implements Comparator<SearchNode>
     {
         @Override
         public int compare(SearchNode o1, SearchNode o2) {
-            if (o1.manhattanPriority() < o2.manhattanPriority()) {       //return <0 if than other
-//                StdOut.println("moves so far: " + o1.moves + " manhattan: " + o1.currBoard.manhattan());
+            if (o1.manhattanPriority() < o2.manhattanPriority()) {       // return <0 if than other
                 return -1;
             }
             else if (o1.manhattanPriority() > o2.manhattanPriority()) {
@@ -126,20 +132,21 @@ public class Solver {
 
     public int moves()                     // min number of moves to solve initial board; -1 if unsolvable
     {
-        return goalSearchNode.moves;
+        return isSolvable() ? goalSearchNode.moves : -1;
     }
 
     public Iterable<Board> solution()      // sequence of boards in a shortest solution; null if unsolvable
     {
-        Stack<Board> solutions = new Stack<>();
         // reconstruct solution from minSearchNode
-        solutions = new Stack<>();
+        Stack<Board> solutions = new Stack<>();
         SearchNode head = goalSearchNode;
-        while(head.prevSearchNode != null) {
+        while (head.prevSearchNode != null) {
             solutions.push(head.currBoard);
             head = head.prevSearchNode;
         }
-        return solutions;
+        solutions.push(initialBoard);
+
+        return isSolvable() ? solutions : null;
     }
 
     public static void main(String[] args) // solve a slider puzzle (given below)
@@ -163,7 +170,7 @@ public class Solver {
 
             // print solution to standard output
             if (!solver.isSolvable())
-                StdOut.println("No solution possible");
+                StdOut.println("No solution possible, moves : " + solver.moves());
             else {
                 StdOut.println("Minimum number of moves = " + solver.moves());
                 for (Board board : solver.solution()) {

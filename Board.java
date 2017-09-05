@@ -7,84 +7,95 @@ import edu.princeton.cs.algs4.StdOut;
  */
 public class Board {
 
-    final private int[][] blocks;
-    final private int dimension;
-    private int blank;
-    final private int hamming;
-    final private int manhattan;
+    private final int[][] blocks;
+    private final int dimension;
+    private final int hamming;
+    private final int blank;
+    private final int manhattan;
 
     public Board(int[][] blocks)           // construct a board from an n-by-n array of blocks
     {
-        this.blocks = blocks;
-        this.dimension = blocks.length;
-        int total = dimension * dimension;
-        int ham = 0, man = 0;
+        if (blocks == null) {
+            throw new IllegalArgumentException();
+        }
 
+        this.dimension = blocks.length;
+        // defense copy of blocks
+        int[][] blockCopy = new int[this.dimension][this.dimension];
+        for (int i = 0; i < this.dimension;  i++) {
+            for (int j = 0; j < this.dimension; j++) {
+                blockCopy[i][j] = blocks[i][j];
+            }
+        }
+        this.blocks = blockCopy;
+
+        // local variables for computing blank, hamming, and manhattan
+        int ham = 0, man = 0;
         int index = 1;
+        int zeroPos = 0;
+        int total = dimension * dimension;
 
         // compute hamming and find blank position
         for (int[] arr : blocks) {
-            for (int curr_elem: arr) {
+            for (int currElem: arr) {
 
                 // compute hamming
-                if (index != curr_elem && index < total) {
+                if (index != currElem && index < total) {
                     ham++;
                 }
 
                 // compute manhattan
-                int dest = curr_elem,
+                int dest = currElem,
                     curr = index;
-                // don't compute 0
-                if (curr_elem != 0) {
-                    int curr_y = (int) Math.ceil((double)curr / this.dimension);
-                    int dest_y = (int) Math.ceil((double)dest / this.dimension);
-                    int curr_x = curr % this.dimension == 0 ? this.dimension : curr % this.dimension;
-                    int dest_x = dest % this.dimension == 0 ? this.dimension : dest % this.dimension;
 
-//                    StdOut.println("curr " + curr + " dest " + dest);
-//                    StdOut.println("curr_x " + curr_x + " curr_y " + curr_y);
-//                    StdOut.println("dest_x " + dest_x + " dest_y " + dest_y);
+                // don't compute 0
+                if (currElem != 0) {
+                    int currY = (int) Math.ceil((double) curr / this.dimension);
+                    int destY = (int) Math.ceil((double) dest / this.dimension);
+                    int currX = curr % this.dimension == 0 ? this.dimension : curr % this.dimension;
+                    int destX = dest % this.dimension == 0 ? this.dimension : dest % this.dimension;
 
                     // y
-                    while (curr_y != dest_y) {
+                    while (currY != destY) {
                         // go up
-                        if(curr_y > dest_y) {
-//                            StdOut.println("curr " + dest + " goes up");
-                            curr_y--;
+                        if (currY > destY) {
+                            // StdOut.println("curr " + dest + " goes up");
+                            currY--;
                             man++;
                         }
                         // go down
-                        else if(curr_y < dest_y) {
-//                            StdOut.println("curr " + dest + " goes down");
-                            curr_y++;
+                        else if (currY < destY) {
+                            // StdOut.println("curr " + dest + " goes down");
+                            currY++;
                             man++;
                         }
                     }
                     // x
-                    while (curr_x != dest_x) {
+                    while (currX != destX) {
                         // go left
-                        if(curr_x > dest_x) {
-//                            StdOut.println("curr " + dest + " goes left");
-                            curr_x--;
+                        if (currX > destX) {
+                            // StdOut.println("curr " + dest + " goes left");
+                            currX--;
                             man++;
                         }
                         // go right
-                        else if(curr_x < dest_x) {
-//                            StdOut.println("curr " + dest + " goes right");
-                            curr_x++;
+                        else if (currX < destX) {
+                            // StdOut.println("curr " + dest + " goes right");
+                            currX++;
                             man++;
                         }
                     }
                 }
 
                 // find blank
-                if (curr_elem == 0) {
-                    blank = index;
+                if (currElem == 0) {
+                    zeroPos = index;
                 }
                 index++;
             }
         }
 
+        this.blank = zeroPos;
         this.hamming = ham;
         this.manhattan = man;
     }
@@ -107,58 +118,68 @@ public class Board {
 
     public boolean isGoal()                // is this board the goal board?
     {
-        if (this.hamming == 0)
-            return true;
-        else
-            return false;
+        return hamming == 0;
     }
 
     public Board twin()                    // a board that is obtained by exchanging any pair of blocks
     {
-        int[][] t_blocks = new int[this.dimension][this.dimension];
+        int[][] tBlocks = new int[this.dimension][this.dimension];
 
         // copy all block elements
         for (int i = 0; i < this.dimension; i++) {
             for (int j = 0; j < this.dimension; j++) {
-                t_blocks[i][j] = this.blocks[i][j];
+                tBlocks[i][j] = this.blocks[i][j];
             }
         }
 
         // swap elements that is neighbor also both not 0
         for (int j = 0; j < this.dimension; j++) {
-            if (t_blocks[0][j] != 0) {
-                int dest_x = j, dest_y = 0;
+            if (tBlocks[0][j] != 0) {
+                int destX = j, destY = 0;
 
-                if ((dest_x+1) < dimension && (t_blocks[0][j+1] != 0)) {
-                    dest_x++;
+                if ((destX+1) < dimension && (tBlocks[0][j+1] != 0)) {
+                    destX++;
                 }
-                else if ((dest_x-1) > 0 && (t_blocks[0][j-1] != 0)) {
-                    dest_x--;
+                else if ((destX-1) > 0 && (tBlocks[0][j-1] != 0)) {
+                    destX--;
                 }
-                else if ((dest_y+1) < dimension && (t_blocks[1][j] != 0)) {
-                    dest_y++;
+                else if ((destY+1) < dimension && (tBlocks[1][j] != 0)) {
+                    destY++;
                 }
 //                StdOut.println("dest_x " + dest_x + " dest_y " + dest_y);
 
                 int temp;
-                temp = t_blocks[0][j];
-                t_blocks[0][j] = t_blocks[dest_y][dest_x];
-                t_blocks[dest_y][dest_x] = temp;
+                temp = tBlocks[0][j];
+                tBlocks[0][j] = tBlocks[destY][destX];
+                tBlocks[destY][destX] = temp;
 
                 break;
             }
         }
-        return new Board(t_blocks);
+        return new Board(tBlocks);
     }
 
-    public boolean equals(Object y)        // does this board equal y?
+    public boolean equals(Object other)        // does this board equal y?
     {
-        if (y == null) {
-            return false;
+        if (other == this) return true;
+        if (other == null) return false;
+        if (other.getClass() != this.getClass()) return false;
+
+        Board that = (Board) other;
+
+        if (that.dimension != this.dimension) return false;
+        if (that.blank != this.blank) return false;
+        if (that.hamming != this.hamming) return false;
+        if (that.manhattan != this.manhattan) return false;
+
+        for (int i = 0; i < this.dimension; i++) {
+            for (int j = 0; j < this.dimension; j++) {
+                if (that.blocks[i][j] != this.blocks[i][j]) {
+                    return false;
+                }
+            }
         }
-        else {
-            return this.toString().equals(y.toString());
-        }
+        return true;
     }
 
     /* deep copy 2-dimension block */
@@ -175,55 +196,51 @@ public class Board {
     public Iterable<Board> neighbors()     // all neighboring boards
     {
         Stack<Board> stack = new Stack<>();
-        int blank_x = (this.blank % this.dimension == 0 ? this.dimension : this.blank % this.dimension)-1;
-        int blank_y = (int) Math.ceil((double) this.blank / this.dimension)-1;
+        int blankX = (this.blank % this.dimension == 0 ? this.dimension : this.blank % this.dimension)-1;
+        int blankY = (int) Math.ceil((double) this.blank / this.dimension)-1;
 
-//        StdOut.println("blank_x: " + blank_x + " blank_y: " + blank_y);
+        // StdOut.println("blank_x: " + blank_x + " blank_y: " + blank_y);
 
         // add Board that swap with right
-        if ((blank_x+1) < this.dimension) {
-//            StdOut.println("swap with right");
+        if ((blankX+1) < this.dimension) {
 
             int[][] tiles = copyBlocks(this.blocks);
-            int temp = tiles[blank_y][blank_x];
-            tiles[blank_y][blank_x] = tiles[blank_y][blank_x+1];
-            tiles[blank_y][blank_x+1] = temp;
+            int temp = tiles[blankY][blankX];
+            tiles[blankY][blankX] = tiles[blankY][blankX+1];
+            tiles[blankY][blankX+1] = temp;
 
             stack.push(new Board(tiles));
         }
 
         // add Board that swap with left
-        if ((blank_x-1) >= 0) {
-//            StdOut.println("swap with left");
+        if ((blankX-1) >= 0) {
 
             int[][] tiles = copyBlocks(this.blocks);
-            int temp = tiles[blank_y][blank_x];
-            tiles[blank_y][blank_x] = tiles[blank_y][blank_x-1];
-            tiles[blank_y][blank_x-1] = temp;
+            int temp = tiles[blankY][blankX];
+            tiles[blankY][blankX] = tiles[blankY][blankX-1];
+            tiles[blankY][blankX-1] = temp;
 
             stack.push(new Board(tiles));
         }
 
         // add Board that swap with below
-        if ((blank_y+1) < this.dimension) {
-//            StdOut.println("swap with below");
+        if ((blankY+1) < this.dimension) {
 
             int[][] tiles = copyBlocks(this.blocks);
-            int temp = tiles[blank_y][blank_x];
-            tiles[blank_y][blank_x] = tiles[blank_y+1][blank_x];
-            tiles[blank_y+1][blank_x] = temp;
+            int temp = tiles[blankY][blankX];
+            tiles[blankY][blankX] = tiles[blankY+1][blankX];
+            tiles[blankY+1][blankX] = temp;
 
             stack.push(new Board(tiles));
         }
 
         // add Board that swap with up
-        if ((blank_y-1) >= 0) {
-//            StdOut.println("swap with up");
+        if ((blankY-1) >= 0) {
 
             int[][] tiles = copyBlocks(this.blocks);
-            int temp = tiles[blank_y][blank_x];
-            tiles[blank_y][blank_x] = tiles[blank_y-1][blank_x];
-            tiles[blank_y-1][blank_x] = temp;
+            int temp = tiles[blankY][blankX];
+            tiles[blankY][blankX] = tiles[blankY-1][blankX];
+            tiles[blankY-1][blankX] = temp;
 
             stack.push(new Board(tiles));
         }
@@ -231,24 +248,11 @@ public class Board {
         return stack;
     }
 
-//    public String toString() {
-//        StringBuilder s = new StringBuilder();
-//        s.append("Dimension: " + dimension + "\n");
-//        s.append("Manhattan: " + manhattan() + "\n");
-//        for (int i = 0; i < dimension; i++) {
-//            for (int j = 0; j < dimension; j++) {
-//                s.append(String.format("%2d ", blocks[i][j]));
-//            }
-//            s.append("\n");
-//        }
-//        return s.toString();
-//    }
-
     public String toString()               // string representation of this board (in the output format specified below)
     {
         StringBuilder sb = new StringBuilder(this.dimension + "\n");
-//        sb.append("Manhattan: " + manhattan() + "\n");
-//        sb.append("Hamming: " + hamming() + "\n");
+        // sb.append("Manhattan: " + manhattan() + "\n");
+        // sb.append("Hamming: " + hamming() + "\n");
         for (int[] arr : this.blocks) {
             for (int i: arr) {
                 sb.append(String.format("%2d ", i));
@@ -272,29 +276,28 @@ public class Board {
                 }
             }
 
-            // test
-//            test_neighbor(tiles);
-//            test_twin(tiles);
+            testNeighbor(tiles);
+            testTwin(tiles);
         }
     }
 
-//    static private void test_neighbor(int[][] tiles) {
-//        StdOut.println("test_neighbor");
-//        Board b1 = new Board(tiles);
-//        StdOut.println("b1: \n" + b1 + "\n");
-//
-//        for (Board b: b1.neighbors()) {
-//            StdOut.println(b);
-//        }
-//    }
-//
-//    static private void test_twin(int[][] tiles) {
-//        StdOut.println("test_twin");
-//        Board b1 = new Board(tiles);
-//        Board b2 = b1.twin();
-//        StdOut.println(b1);
-//        StdOut.println(b2);
-//
-//        assert !b1.equals(b2);
-//    }
+    private static void testNeighbor(int[][] tiles) {
+        StdOut.println("testNeighbor");
+        Board b1 = new Board(tiles);
+        StdOut.println("b1: \n" + b1 + "\n");
+
+        for (Board b: b1.neighbors()) {
+            StdOut.println(b);
+        }
+    }
+
+    private static void testTwin(int[][] tiles) {
+        StdOut.println("testTwin");
+        Board b1 = new Board(tiles);
+        Board b2 = b1.twin();
+        StdOut.println(b1);
+        StdOut.println(b2);
+
+        assert !b1.equals(b2);
+    }
 }
