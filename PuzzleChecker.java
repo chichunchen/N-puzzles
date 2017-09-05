@@ -47,8 +47,16 @@ public class PuzzleChecker {
 
             // solve the slider puzzle
             Board initial = new Board(tiles);
-//            Solver solver = new Solver(initial);
-//            StdOut.println(filename + ": " + solver.moves());
+            Solver solver = new Solver(initial);
+
+            // print solution to standard output
+//            if (!solver.isSolvable())
+//                StdOut.println("No solution possible");
+//            else {
+//                StdOut.println("Minimum number of moves = " + solver.moves());
+//                for (Board board : solver.solution())
+//                    StdOut.println(board);
+//            }
         }
     }
 }

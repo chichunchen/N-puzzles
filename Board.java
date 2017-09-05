@@ -6,7 +6,7 @@ import java.util.LinkedList;
 /**
  * Created by chichunchen on 9/4/17.
  */
-public class Board {
+public class Board implements Comparable<Board> {
 
     private int[][] blocks;
     private int dimension;
@@ -97,6 +97,35 @@ public class Board {
 //        StdOut.println(this);
     }
 
+    public int compareTo(Board other) {
+//        if (this.hamming < other.hamming()) {       //return <0 if than other
+//            return -1;
+//        }
+//        else if (this.hamming > other.hamming()) {
+//            return 1;
+//        }
+//        else {      // hamming is equal, use manhattan
+//            if (this.manhattan < other.manhattan()) {       //return <0 if than other
+//                return -1;
+//            }
+//            else if (this.manhattan > other.manhattan()) {
+//                return 1;
+//            }
+//            else {
+//                return 0;
+//            }
+//        }
+        if (this.manhattan < other.manhattan()) {       //return <0 if than other
+            return -1;
+        }
+        else if (this.manhattan > other.manhattan()) {
+            return 1;
+        }
+        else {
+            return 0;
+        }
+    }
+
     // (where blocks[i][j] = block in row i, column j)
     public int dimension()                 // board dimension n
     {
@@ -115,7 +144,7 @@ public class Board {
 
     public boolean isGoal()                // is this board the goal board?
     {
-        if (hamming == 0)
+        if (this.hamming == 0)
             return true;
         else
             return false;
@@ -146,7 +175,7 @@ public class Board {
                 else if ((dest_y+1) < dimension && (t_blocks[1][j] != 0)) {
                     dest_y++;
                 }
-                StdOut.println("dest_x " + dest_x + " dest_y " + dest_y);
+//                StdOut.println("dest_x " + dest_x + " dest_y " + dest_y);
 
                 int temp;
                 temp = t_blocks[0][j];
@@ -181,7 +210,7 @@ public class Board {
         int blank_x = (this.blank % this.dimension == 0 ? this.dimension : this.blank % this.dimension)-1;
         int blank_y = (int) Math.ceil((double) this.blank / this.dimension)-1;
 
-        StdOut.println("blank_x: " + blank_x + " blank_y: " + blank_y);
+//        StdOut.println("blank_x: " + blank_x + " blank_y: " + blank_y);
 
         // add Board that swap with right
         if ((blank_x+1) < this.dimension) {
@@ -236,7 +265,7 @@ public class Board {
 
     public String toString()               // string representation of this board (in the output format specified below)
     {
-        StringBuilder sb = new StringBuilder(blank + "\n");
+        StringBuilder sb = new StringBuilder(this.dimension + "\n");
         for (int[] arr : this.blocks) {
             for (int i: arr) {
                 sb.append(" " + i);
