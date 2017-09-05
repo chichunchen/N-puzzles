@@ -7,34 +7,54 @@ import java.util.Comparator;
 public class Solver {
     private MinPQ<SearchNode> origPQ;            // original pq
     private MinPQ<SearchNode> twinPQ;            // for detecting whether the swapped board, e.g., twin board is solvable
-    private Board initialBoard;
-    private Board twin;
     private SearchNode minSearchNode;
+    private SearchNode twinSearchNode;
     private Stack<Board> solutions;
+    private boolean solvable;
 
     public Solver(Board initial)            // find a solution to the initial board (using the A* algorithm)
     {
         solutions = new Stack<>();
+        this.solvable = true;
         this.origPQ = new MinPQ<>(new sortByManhattan());
-//        this.twinPQ = new MinPQ<>(new sortByManhattan());
-        this.initialBoard = initial;
-//        this.twin = initialBoard.twin();
+        this.twinPQ = new MinPQ<>(new sortByManhattan());
 
         origPQ.insert(new SearchNode(initial, null, 0));
+        twinPQ.insert(new SearchNode(initial.twin(), null, 0));
         minSearchNode = origPQ.delMin();
+        twinSearchNode = twinPQ.delMin();
 
         // if minSearchNode does not in goal state
         // add all the neighbors in queue
-        while(!minSearchNode.currBoard.isGoal()) {
-//            StdOut.println(minSearchNode.currBoard);
+        // and then find the min searchNode from minPQ, repeat if current board is not in goal state
+        // also, process a twin node, and try whether it can reach goal state
+        // if twin reach goal state, then it's unsolvable!
+        while(!minSearchNode.currBoard.isGoal() && !twinSearchNode.currBoard.isGoal()) {
+
+            // our target
             for (Board b : minSearchNode.currBoard.neighbors()) {
+                // critical optimization: neighbor should not equal to neighbor
                 if (minSearchNode.prevSearchNode == null || (!minSearchNode.prevSearchNode.currBoard.equals(b))) {
                     SearchNode searchNode = new SearchNode(b, minSearchNode, minSearchNode.moves + 1);
                     origPQ.insert(searchNode);
-//                    StdOut.println("Add neighbor: " + searchNode.currBoard);
                 }
             }
             minSearchNode = origPQ.delMin();
+
+            // twin
+            for (Board b : twinSearchNode.currBoard.neighbors()) {
+                // critical optimization: neighbor should not equal to neighbor
+                if (twinSearchNode.prevSearchNode == null || (!twinSearchNode.prevSearchNode.currBoard.equals(b))) {
+                    SearchNode searchNode = new SearchNode(b, twinSearchNode, twinSearchNode.moves + 1);
+                    twinPQ.insert(searchNode);
+                }
+            }
+            twinSearchNode = twinPQ.delMin();
+        }
+
+        if (twinSearchNode.currBoard.isGoal()) {
+            this.solvable = false;
+            return;
         }
 
         // reconstruct solution from minSearchNode
@@ -87,7 +107,7 @@ public class Solver {
 
     public boolean isSolvable()            // is the initial board solvable?
     {
-        return true;
+        return solvable;
     }
 
     public int moves()                     // min number of moves to solve initial board; -1 if unsolvable
