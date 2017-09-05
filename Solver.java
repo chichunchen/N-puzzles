@@ -5,24 +5,18 @@ import java.util.Comparator;
  * Created by chichunchen on 9/4/17.
  */
 public class Solver {
-    private MinPQ<SearchNode> origPQ;            // original pq
-    private MinPQ<SearchNode> twinPQ;            // for detecting whether the swapped board, e.g., twin board is solvable
-    private SearchNode minSearchNode;
-    private SearchNode twinSearchNode;
-    private Stack<Board> solutions;
-    private boolean solvable;
+    final private SearchNode goalSearchNode;
+    final private boolean solvable;
 
     public Solver(Board initial)            // find a solution to the initial board (using the A* algorithm)
     {
-        solutions = new Stack<>();
-        this.solvable = true;
-        this.origPQ = new MinPQ<>(new sortByManhattan());
-        this.twinPQ = new MinPQ<>(new sortByManhattan());
+        MinPQ<SearchNode> origPQ = new MinPQ<>(new sortByManhattan());
+        MinPQ<SearchNode> twinPQ = new MinPQ<>(new sortByManhattan());
 
         origPQ.insert(new SearchNode(initial, null, 0));
         twinPQ.insert(new SearchNode(initial.twin(), null, 0));
-        minSearchNode = origPQ.delMin();
-        twinSearchNode = twinPQ.delMin();
+        SearchNode minSearchNode = origPQ.delMin();
+        SearchNode twinSearchNode = twinPQ.delMin();
 
         // if minSearchNode does not in goal state
         // add all the neighbors in queue
@@ -51,24 +45,20 @@ public class Solver {
             }
             twinSearchNode = twinPQ.delMin();
         }
+        goalSearchNode = minSearchNode;
 
         if (twinSearchNode.currBoard.isGoal()) {
             this.solvable = false;
             return;
+        } else {
+            this.solvable = true;
         }
 
-        // reconstruct solution from minSearchNode
-        solutions = new Stack<>();
-        SearchNode head = minSearchNode;
-        while(head.prevSearchNode != null) {
-            solutions.push(head.currBoard);
-            head = head.prevSearchNode;
-        }
 
 //        StdOut.println(minSearchNode.currBoard);
     }
 
-    class sortByHamming implements Comparator<SearchNode>
+    private class sortByHamming implements Comparator<SearchNode>
     {
         @Override
         public int compare(SearchNode o1, SearchNode o2) {
@@ -88,7 +78,7 @@ public class Solver {
         }
     }
 
-    class sortByManhattan implements Comparator<SearchNode>
+    private class sortByManhattan implements Comparator<SearchNode>
     {
         @Override
         public int compare(SearchNode o1, SearchNode o2) {
@@ -105,6 +95,30 @@ public class Solver {
         }
     }
 
+    private class SearchNode {
+        Board currBoard;
+        SearchNode prevSearchNode;
+        int moves;      // moves made so far
+
+        public SearchNode(Board board, SearchNode prev, int moves) {
+            this.currBoard = board;
+            this.prevSearchNode = prev;
+            this.moves = moves;
+        }
+
+        public String toString() {
+            return "moves: " + moves + "\n" + currBoard.toString();
+        }
+
+        public int manhattanPriority() {
+            return moves + currBoard.manhattan();
+        }
+
+        public int hammingPriority() {
+            return moves + currBoard.hamming();
+        }
+    }
+
     public boolean isSolvable()            // is the initial board solvable?
     {
         return solvable;
@@ -112,11 +126,19 @@ public class Solver {
 
     public int moves()                     // min number of moves to solve initial board; -1 if unsolvable
     {
-        return minSearchNode.moves;
+        return goalSearchNode.moves;
     }
 
     public Iterable<Board> solution()      // sequence of boards in a shortest solution; null if unsolvable
     {
+        Stack<Board> solutions = new Stack<>();
+        // reconstruct solution from minSearchNode
+        solutions = new Stack<>();
+        SearchNode head = goalSearchNode;
+        while(head.prevSearchNode != null) {
+            solutions.push(head.currBoard);
+            head = head.prevSearchNode;
+        }
         return solutions;
     }
 
@@ -149,29 +171,5 @@ public class Solver {
                 }
             }
         }
-    }
-}
-
-class SearchNode {
-    Board currBoard;
-    SearchNode prevSearchNode;
-    int moves;      // moves made so far
-
-    public SearchNode(Board board, SearchNode prev, int moves) {
-        this.currBoard = board;
-        this.prevSearchNode = prev;
-        this.moves = moves;
-    }
-
-    public String toString() {
-        return "moves: " + moves + "\n" + currBoard.toString();
-    }
-
-    public int manhattanPriority() {
-        return moves + currBoard.manhattan();
-    }
-
-    public int hammingPriority() {
-        return moves + currBoard.hamming();
     }
 }

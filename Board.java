@@ -7,20 +7,18 @@ import edu.princeton.cs.algs4.StdOut;
  */
 public class Board {
 
-    private int[][] blocks;
-    private int dimension;
+    final private int[][] blocks;
+    final private int dimension;
     private int blank;
-    private int hamming;
-    private int manhattan;
-    private int total;
+    final private int hamming;
+    final private int manhattan;
 
     public Board(int[][] blocks)           // construct a board from an n-by-n array of blocks
     {
         this.blocks = blocks;
         this.dimension = blocks.length;
-        this.hamming = 0;
-        this.manhattan = 0;
-        this.total = dimension * dimension;
+        int total = dimension * dimension;
+        int ham = 0, man = 0;
 
         int index = 1;
 
@@ -29,8 +27,8 @@ public class Board {
             for (int curr_elem: arr) {
 
                 // compute hamming
-                if (index != curr_elem && index < this.total) {
-                    hamming++;
+                if (index != curr_elem && index < total) {
+                    ham++;
                 }
 
                 // compute manhattan
@@ -53,13 +51,13 @@ public class Board {
                         if(curr_y > dest_y) {
 //                            StdOut.println("curr " + dest + " goes up");
                             curr_y--;
-                            this.manhattan++;
+                            man++;
                         }
                         // go down
                         else if(curr_y < dest_y) {
 //                            StdOut.println("curr " + dest + " goes down");
                             curr_y++;
-                            this.manhattan++;
+                            man++;
                         }
                     }
                     // x
@@ -68,13 +66,13 @@ public class Board {
                         if(curr_x > dest_x) {
 //                            StdOut.println("curr " + dest + " goes left");
                             curr_x--;
-                            this.manhattan++;
+                            man++;
                         }
                         // go right
                         else if(curr_x < dest_x) {
 //                            StdOut.println("curr " + dest + " goes right");
                             curr_x++;
-                            this.manhattan++;
+                            man++;
                         }
                     }
                 }
@@ -87,10 +85,8 @@ public class Board {
             }
         }
 
-        // debugging
-//        StdOut.println("hamming: " + hamming());
-//        StdOut.println("manhattan: " + manhattan());
-//        StdOut.println(this);
+        this.hamming = ham;
+        this.manhattan = man;
     }
 
     // (where blocks[i][j] = block in row i, column j)
@@ -157,7 +153,12 @@ public class Board {
 
     public boolean equals(Object y)        // does this board equal y?
     {
-        return this.toString().equals(y.toString());
+        if (y == null) {
+            return false;
+        }
+        else {
+            return this.toString().equals(y.toString());
+        }
     }
 
     /* deep copy 2-dimension block */
@@ -246,8 +247,8 @@ public class Board {
     public String toString()               // string representation of this board (in the output format specified below)
     {
         StringBuilder sb = new StringBuilder(this.dimension + "\n");
-        sb.append("Manhattan: " + manhattan() + "\n");
-        sb.append("Hamming: " + hamming() + "\n");
+//        sb.append("Manhattan: " + manhattan() + "\n");
+//        sb.append("Hamming: " + hamming() + "\n");
         for (int[] arr : this.blocks) {
             for (int i: arr) {
                 sb.append(String.format("%2d ", i));
@@ -272,28 +273,28 @@ public class Board {
             }
 
             // test
-            test_neighbor(tiles);
+//            test_neighbor(tiles);
 //            test_twin(tiles);
         }
     }
 
-    static private void test_neighbor(int[][] tiles) {
-        StdOut.println("test_neighbor");
-        Board b1 = new Board(tiles);
-        StdOut.println("b1: \n" + b1 + "\n");
-
-        for (Board b: b1.neighbors()) {
-            StdOut.println(b);
-        }
-    }
-
-    static private void test_twin(int[][] tiles) {
-        StdOut.println("test_twin");
-        Board b1 = new Board(tiles);
-        Board b2 = b1.twin();
-        StdOut.println(b1);
-        StdOut.println(b2);
-
-        assert !b1.equals(b2);
-    }
+//    static private void test_neighbor(int[][] tiles) {
+//        StdOut.println("test_neighbor");
+//        Board b1 = new Board(tiles);
+//        StdOut.println("b1: \n" + b1 + "\n");
+//
+//        for (Board b: b1.neighbors()) {
+//            StdOut.println(b);
+//        }
+//    }
+//
+//    static private void test_twin(int[][] tiles) {
+//        StdOut.println("test_twin");
+//        Board b1 = new Board(tiles);
+//        Board b2 = b1.twin();
+//        StdOut.println(b1);
+//        StdOut.println(b2);
+//
+//        assert !b1.equals(b2);
+//    }
 }
