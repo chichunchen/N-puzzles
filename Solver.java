@@ -36,7 +36,7 @@ public class Solver {
         while (!minSearchNode.currBoard.isGoal() && !twinSearchNode.currBoard.isGoal()) {
             // our target
             for (Board b : minSearchNode.currBoard.neighbors()) {
-                // critical optimization: neighbor should not equal to neighbor
+                // critical optimization: neighbor should not equal to previous search node
                 if (minSearchNode.prevSearchNode == null || (!minSearchNode.prevSearchNode.currBoard.equals(b))) {
                     SearchNode searchNode = new SearchNode(b, minSearchNode, minSearchNode.moves+1);
                     origPQ.insert(searchNode);
@@ -106,11 +106,11 @@ public class Solver {
         }
 
         public int manhattanPriority() {
-            return moves + currBoard.manhattan();
+            return this.moves + this.currBoard.manhattan();
         }
 
         public int hammingPriority() {
-            return moves + currBoard.hamming();
+            return this.moves + this.currBoard.hamming();
         }
     }
 
@@ -126,6 +126,9 @@ public class Solver {
 
     public Iterable<Board> solution()      // sequence of boards in a shortest solution; null if unsolvable
     {
+        if (!isSolvable())
+            return null;
+
         // reconstruct solution from minSearchNode
         Stack<Board> solutions = new Stack<>();
         SearchNode head = goalSearchNode;
@@ -135,7 +138,7 @@ public class Solver {
         }
         solutions.push(initialBoard);
 
-        return isSolvable() ? solutions : null;
+        return solutions;
     }
 
     public static void main(String[] args) // solve a slider puzzle (given below)

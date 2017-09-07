@@ -41,7 +41,7 @@ public class Board {
                 int dest = currElem,
                     curr = index;
 
-                // don't compute 0
+                // don't compute blank
                 if (currElem != 0) {
                     int currY = (int) Math.ceil((double) curr / this.dimension);
                     int destY = (int) Math.ceil((double) dest / this.dimension);
@@ -119,6 +119,7 @@ public class Board {
         int[][] tBlocks = copyBlocks(this.blocks);
 
         // swap elements that is neighbor also both not 0
+        // just pick an arbitrary one for twin, it doesn't affect much in terms of efficiency
         for (int j = 0; j < this.dimension; j++) {
             if (tBlocks[0][j] != 0) {
                 int destX = j, destY = 0;
@@ -132,7 +133,6 @@ public class Board {
                 else if ((destY+1) < dimension && (tBlocks[1][j] != 0)) {
                     destY++;
                 }
-//                StdOut.println("dest_x " + dest_x + " dest_y " + dest_y);
 
                 int temp;
                 temp = tBlocks[0][j];
