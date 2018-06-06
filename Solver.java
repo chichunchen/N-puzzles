@@ -4,6 +4,7 @@ import edu.princeton.cs.algs4.Stack;
 import edu.princeton.cs.algs4.StdOut;
 
 import java.util.Comparator;
+
 /**
  * Created by chichunchen on 9/4/17.
  */
@@ -38,7 +39,7 @@ public class Solver {
             for (Board b : minSearchNode.currBoard.neighbors()) {
                 // critical optimization: neighbor should not equal to previous search node
                 if (minSearchNode.prevSearchNode == null || (!minSearchNode.prevSearchNode.currBoard.equals(b))) {
-                    SearchNode searchNode = new SearchNode(b, minSearchNode, minSearchNode.moves+1);
+                    SearchNode searchNode = new SearchNode(b, minSearchNode, minSearchNode.moves + 1);
                     origPQ.insert(searchNode);
                 }
             }
@@ -48,7 +49,7 @@ public class Solver {
             for (Board b : twinSearchNode.currBoard.neighbors()) {
                 // critical optimization: neighbor should not equal to neighbor
                 if (twinSearchNode.prevSearchNode == null || (!twinSearchNode.prevSearchNode.currBoard.equals(b))) {
-                    SearchNode searchNode = new SearchNode(b, twinSearchNode, twinSearchNode.moves+1);
+                    SearchNode searchNode = new SearchNode(b, twinSearchNode, twinSearchNode.moves + 1);
                     twinPQ.insert(searchNode);
                 }
             }
@@ -66,24 +67,19 @@ public class Solver {
         }
     }
 
-    private class SortByManhattan implements Comparator<SearchNode>
-    {
+    private class SortByManhattan implements Comparator<SearchNode> {
         @Override
         public int compare(SearchNode o1, SearchNode o2) {
             if (o1.manhattanPriority() < o2.manhattanPriority()) {       // return <0 if than other
                 return -1;
-            }
-            else if (o1.manhattanPriority() > o2.manhattanPriority()) {
+            } else if (o1.manhattanPriority() > o2.manhattanPriority()) {
                 return 1;
-            }
-            else {
+            } else {
                 if (o1.currBoard.manhattan() < o2.currBoard.manhattan()) {
                     return -1;
-                }
-                else if (o1.currBoard.manhattan() > o2.currBoard.manhattan()) {
+                } else if (o1.currBoard.manhattan() > o2.currBoard.manhattan()) {
                     return 1;
-                }
-                else {
+                } else {
                     return 0;
                 }
             }

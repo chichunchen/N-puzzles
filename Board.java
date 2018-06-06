@@ -30,7 +30,7 @@ public class Board {
 
         // compute hamming and find blank position
         for (int[] arr : blocks) {
-            for (int currElem: arr) {
+            for (int currElem : arr) {
 
                 // compute hamming
                 if (index != currElem && index < total) {
@@ -39,7 +39,7 @@ public class Board {
 
                 // compute manhattan
                 int dest = currElem,
-                    curr = index;
+                        curr = index;
 
                 // don't compute blank
                 if (currElem != 0) {
@@ -124,13 +124,11 @@ public class Board {
             if (tBlocks[0][j] != 0) {
                 int destX = j, destY = 0;
 
-                if ((destX+1) < dimension && (tBlocks[0][j+1] != 0)) {
+                if ((destX + 1) < dimension && (tBlocks[0][j + 1] != 0)) {
                     destX++;
-                }
-                else if ((destX-1) > 0 && (tBlocks[0][j-1] != 0)) {
+                } else if ((destX - 1) > 0 && (tBlocks[0][j - 1] != 0)) {
                     destX--;
-                }
-                else if ((destY+1) < dimension && (tBlocks[1][j] != 0)) {
+                } else if ((destY + 1) < dimension && (tBlocks[1][j] != 0)) {
                     destY++;
                 }
 
@@ -169,7 +167,7 @@ public class Board {
     }
 
     /* deep copy 2-dimension block */
-    private int[][] copyBlocks(int [][]tiles) {
+    private int[][] copyBlocks(int[][] tiles) {
         int[][] result = new int[this.dimension][this.dimension];
         for (int i = 0; i < this.dimension; i++) {
             for (int j = 0; j < this.dimension; j++) {
@@ -188,48 +186,48 @@ public class Board {
         } else {
             blankX = blankMod - 1;
         }
-        blankY = (int) Math.ceil((double) this.blank / this.dimension)-1;
+        blankY = (int) Math.ceil((double) this.blank / this.dimension) - 1;
 
         // add Board that swap with right
-        if ((blankX+1) < this.dimension) {
+        if ((blankX + 1) < this.dimension) {
 
             int[][] tiles = copyBlocks(this.blocks);
             int temp = tiles[blankY][blankX];
-            tiles[blankY][blankX] = tiles[blankY][blankX+1];
-            tiles[blankY][blankX+1] = temp;
+            tiles[blankY][blankX] = tiles[blankY][blankX + 1];
+            tiles[blankY][blankX + 1] = temp;
 
             stack.push(new Board(tiles));
         }
 
         // add Board that swap with left
-        if ((blankX-1) >= 0) {
+        if ((blankX - 1) >= 0) {
 
             int[][] tiles = copyBlocks(this.blocks);
             int temp = tiles[blankY][blankX];
-            tiles[blankY][blankX] = tiles[blankY][blankX-1];
-            tiles[blankY][blankX-1] = temp;
+            tiles[blankY][blankX] = tiles[blankY][blankX - 1];
+            tiles[blankY][blankX - 1] = temp;
 
             stack.push(new Board(tiles));
         }
 
         // add Board that swap with below
-        if ((blankY+1) < this.dimension) {
+        if ((blankY + 1) < this.dimension) {
 
             int[][] tiles = copyBlocks(this.blocks);
             int temp = tiles[blankY][blankX];
-            tiles[blankY][blankX] = tiles[blankY+1][blankX];
-            tiles[blankY+1][blankX] = temp;
+            tiles[blankY][blankX] = tiles[blankY + 1][blankX];
+            tiles[blankY + 1][blankX] = temp;
 
             stack.push(new Board(tiles));
         }
 
         // add Board that swap with up
-        if ((blankY-1) >= 0) {
+        if ((blankY - 1) >= 0) {
 
             int[][] tiles = copyBlocks(this.blocks);
             int temp = tiles[blankY][blankX];
-            tiles[blankY][blankX] = tiles[blankY-1][blankX];
-            tiles[blankY-1][blankX] = temp;
+            tiles[blankY][blankX] = tiles[blankY - 1][blankX];
+            tiles[blankY - 1][blankX] = temp;
 
             stack.push(new Board(tiles));
         }
@@ -243,7 +241,7 @@ public class Board {
         // sb.append("Manhattan: " + manhattan() + "\n");
         // sb.append("Hamming: " + hamming() + "\n");
         for (int[] arr : this.blocks) {
-            for (int i: arr) {
+            for (int i : arr) {
                 sb.append(String.format("%2d ", i));
             }
             sb.append("\n");
@@ -275,7 +273,7 @@ public class Board {
         Board b1 = new Board(tiles);
         StdOut.println("b1: \n" + b1 + "\n");
 
-        for (Board b: b1.neighbors()) {
+        for (Board b : b1.neighbors()) {
             StdOut.println(b);
         }
     }
